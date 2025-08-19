@@ -158,6 +158,117 @@ $("#confirmDeletePersonnelBtn").click(function () {
     });
 });
 
+// Shows modal and sets department ID and name
+$("#deleteDepartmentModal").on("show.bs.modal", function (e) {
+    const id = $(e.relatedTarget).data("id");
+    const name = $(e.relatedTarget).data("name");
+    $("#deleteDepartmentID").val(id);
+    $("#deleteDepartmentName").val(name);
+    $("#deleteDepartmentMessage").html(`Are you sure you want to delete the <strong>${name}</strong> department?`);
+    $("#deleteDepartmentError").addClass("d-none");
+
+});
+
+// Handles deletion
+$("#confirmDeleteDepartmentBtn").click(function () {
+    const id = $("#deleteDepartmentID").val();
+
+    $.ajax({
+        url: "libs/php/deleteDepartmentByID.php",
+        type: "POST",
+        dataType: "json",
+        data: { id: id },
+        success: function (result) {
+            if (result.status.code === "200") {
+                $("#deleteDepartmentModal").modal("hide");
+                loadDepartments();
+            } else if (result.status.code === "409") {
+                // Dependency error shows the warning
+                $("#deleteDepartmentError").removeClass("d-none");
+            } else {
+                alert("Delete failed.");
+            }
+        },
+
+        error: function () {
+            alert("AJAX error during delete.")
+        }
+    });
+});
+
+// Edit Department
+$("#editDepartmentModal").on("show.bs.modal", function (e) {
+    const id = $(e.relatedTarget).data("id");
+
+    // Clear any old data
+    $("#editDepartmentForm")[0].reset();
+    $("#editDepartmentID").val(id);
+
+    // Load locations for the dropdown
+    $.ajax({
+        url: "libs/php/getAllLocations.php",
+        type: "GET",
+        dataType: "json",
+        success: function (result) {
+            if (result.status.code === "200") {
+                $("#editDepartmentLocation").html("");
+                result.data.forEach(location => {
+                    $("#editDepartmentLocation").append(
+                        $("<option>", {
+                            value: location.id,
+                            text: location.name
+                        })
+                    );
+                });
+            }
+        }
+    });
+
+    // Loads department details
+    $.ajax({
+        url: "libs/php/getDepartmentByID.php",
+        type: "GET",
+        dataType: "json",
+        data: { id: id },
+        success: function (result) {
+            if (result.status.code === "200") {
+                const dept = result.data[0];
+                $("#editDepartmentName").val(dept.name);
+                $("#editDepartmentLocation").val(dept.locationID);
+            }
+        }
+    });
+
+
+});
+
+// Submit department edit
+$("#editDepartmentForm").on("submit", function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: "libs/php/updateDepartment.php",
+        type: "POST",
+        dataType: "json",
+        data: {
+            id: $("#editDepartmentID").val(),
+            name: $("#editDepartmentName").val(),
+            locationID: $("#editDepartmentLocation").val()
+        },
+        success: function (result) {
+            if (result.status.code === "200") {
+                $("#editDepartmentModal").modal("hide");
+                loadDepartments();
+            } else {
+                alert("Update failed.")
+            }
+        },
+        error: function () {
+            alert("AJAX error during update.");
+        }
+    });
+});
+
 
 // Executes when the form button with type="submit" is clicked
 
@@ -248,13 +359,16 @@ function loadDepartments() {
                         <tr>
                             <td class="align-middle text-nowrap">${dept.department}</td>
                             <td class="align-middle text-nowrap d-none d-md-table-cell">${dept.location}</td>
-
                             <td class="align-middle text-end text-nowrap">
                                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                     data-bs-target="#editDepartmentModal" data-id="${dept.id}">
                                     <i class="fa-solid fa-pencil fa-fw"></i>
                                 </button>
-                                <button type="button" class="btn btn-primary btn-sm deleteDepartmentBtn" data-id="${dept.id}">
+                                <button type="button" class="btn btn-primary btn-sm deleteDepartmentBtn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteDepartmentModal" 
+                                    data-id="${dept.id}" 
+                                    data-name="${dept.department}">
                                     <i class="fa-solid fa-trash fa-fw"></i>
                                 </button>
                             </td>
@@ -268,6 +382,7 @@ function loadDepartments() {
         }
     });
 }
+
 
 function loadPersonnel() {
     $.ajax({
