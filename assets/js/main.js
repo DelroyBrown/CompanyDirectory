@@ -99,6 +99,7 @@ const filterState = {
     locations: {}
 };
 
+// Filter Button Logic
 $("#filterBtn").click(function () {
     const onPersonnel = $("#personnelBtn").hasClass("active");
     const onDepartments = $("#departmentsBtn").hasClass("active") || $("#departmentBtn").hasClass("active");
@@ -162,6 +163,32 @@ $("#filterBtn").click(function () {
         });
     }
 
+    if (onDepartments) {
+        $.ajax({
+            url: "libs/php/getAllLocations.php",
+            type: "GET",
+            dataType: "json",
+            success: function (res) {
+                const $sel = $("#departmentsFilterLocation")
+                    .empty()
+                    .append('<option value="">All locations</option>');
+
+
+                (res && res.data ? res.data : []).forEach(function (loc) {
+                    $sel.append('<option value="' + loc.id + '">' + loc.name + '</option>');
+                });
+
+                if (filterState?.departments?.locationID) {
+                    $sel.val(filterState.departments.locationID);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Error loading locations (departments filter):", textStatus, errorThrown);
+            }
+        });
+    }
+
+
     // Show modal
     var modal = new bootstrap.Modal(document.getElementById("filterModal"));
     modal.show();
@@ -172,16 +199,18 @@ $("#filterApplyBtn").on("click", function () {
     const q = $("#searchInp").val().trim();
 
     if ($("#personnelBtn").hasClass("active")) {
-        filterState.personnel.departmentID = $("#personnelFilterDepartment").val();
-        filterState.personnel.locationID = $("#personnelFilterLocation").val();
-        // Your loader should already support (q, filters)
+        filterState.personnel.departmentID = $("#personnelFilterDepartment").val() || "";
+        filterState.personnel.locationID = $("#personnelFilterLocation").val() || "";
         loadPersonnel(q, filterState.personnel);
+
     } else if ($("#departmentsBtn").hasClass("active") || $("#departmentBtn").hasClass("active")) {
-        // TODO when wiring dept filters (e.g., locationID)
-        // loadDepartments(q, filterState.departments);
+        // Departments: filter by location
+        filterState.departments.locationID = $("#departmentsFilterLocation").val() || "";
+        loadDepartments(q, filterState.departments);
+
     } else if ($("#locationsBtn").hasClass("active") || $("#locationBtn").hasClass("active")) {
         // No filters yet for locations
-        // loadLocations(q);
+        loadLocations(q);
     }
 
     $("#filterModal").modal("hide");
@@ -196,16 +225,18 @@ $("#filterClearBtn").on("click", function () {
         $("#personnelFilterDepartment").val("");
         $("#personnelFilterLocation").val("");
         loadPersonnel(q, filterState.personnel);
+
     } else if ($("#departmentsBtn").hasClass("active") || $("#departmentBtn").hasClass("active")) {
         filterState.departments = { locationID: "" };
         $("#departmentsFilterLocation").val("");
-        // loadDepartments(q, filterState.departments);
+        loadDepartments(q, filterState.departments);
+
     } else if ($("#locationsBtn").hasClass("active") || $("#locationBtn").hasClass("active")) {
-        // loadLocations(q);
+        loadLocations(q);
     }
+
+    $("#filterModal").modal("hide");
 });
-
-
 
 
 $("#personnelBtn").click(function () {
@@ -640,47 +671,57 @@ $("#confirmDeleteLocationBtn").click(function () {
 
 
 
-function loadDepartments(q = "") {
-    const useSearch = q.length > 0;
-    const url = useSearch
-        ? "libs/php/SearchAll.php?txt=" + encodeURIComponent(q)
-        : "libs/php/getAllDepartments.php";
+function loadDepartments(q = "", filters = {}) {
+    const useSearch = (q || "").trim().length > 0;
+    const locationID = (filters && filters.locationID) ? String(filters.locationID) : "";
+
+    let url;
+    if (useSearch) {
+        // Search takes precedence over filters
+        url = "libs/php/SearchAll.php?txt=" + encodeURIComponent(q);
+    } else if (locationID) {
+        // Filtered list by location
+        url = "libs/php/getAllDepartments.php?locationID=" + encodeURIComponent(locationID);
+    } else {
+        // Unfiltered list
+        url = "libs/php/getAllDepartments.php";
+    }
 
     $.ajax({
-        url,
+        url: url,
         type: "GET",
         dataType: "json",
         success: function (result) {
             let rows = [];
             if (useSearch) {
-                const found = (result?.data?.found) || [];
+                const found = (result && result.data && Array.isArray(result.data.found)) ? result.data.found : [];
                 rows = found
-                    .filter(x => (x.entity === "department") || (x.name && x.location && !x.firstName && !x.lastName))
+                    .filter(x => (x.entity === "department") || (x.name && !x.firstName && !x.lastName))
                     .map(d => ({
                         id: d.id,
-                        department: d.name,      // map to your expected field
-                        location: d.location ?? ""
+                        department: d.name, // map to your expected field
+                        location: d.locationName ?? d.location ?? ""
                     }));
             } else {
-                rows = result.data;
+                rows = result.data || [];
             }
 
-            $("#departmentTableBody").html(""); // Clear existing rows
+            const $tbody = $("#departmentTableBody").empty();
             rows.forEach(dept => {
-                $("#departmentTableBody").append(`
+                $tbody.append(`
           <tr>
             <td class="align-middle text-nowrap">${dept.department}</td>
             <td class="align-middle text-nowrap d-none d-md-table-cell">${dept.location}</td>
             <td class="align-middle text-end text-nowrap">
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                  data-bs-target="#editDepartmentModal" data-id="${dept.id}">
+                      data-bs-target="#editDepartmentModal" data-id="${dept.id}">
                 <i class="fa-solid fa-pencil fa-fw"></i>
               </button>
-              <button type="button" class="btn btn-primary btn-sm deleteDepartmentBtn" 
-                  data-bs-toggle="modal" 
-                  data-bs-target="#deleteDepartmentModal" 
-                  data-id="${dept.id}" 
-                  data-name="${dept.department}">
+              <button type="button" class="btn btn-primary btn-sm deleteDepartmentBtn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#deleteDepartmentModal"
+                      data-id="${dept.id}"
+                      data-name="${dept.department}">
                 <i class="fa-solid fa-trash fa-fw"></i>
               </button>
             </td>
@@ -693,6 +734,7 @@ function loadDepartments(q = "") {
         }
     });
 }
+
 
 
 function loadPersonnel(q = "", filters = {}) {
