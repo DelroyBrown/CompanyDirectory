@@ -1,6 +1,23 @@
+import { loadDepartments as modLoadDepartments } from "./departments.js";
+import { loadLocations as modLoadLocations } from "./locations.js";
+import { loadPersonnel as modLoadPersonnel } from "./personnel.js";
+import { bindFilterModal } from "./filters.js";
+
+
 $(document).ready(function () {
     loadPersonnel();
 });
+
+const loadDepartments = modLoadDepartments;
+const loadLocations = modLoadLocations;
+const loadPersonnel = modLoadPersonnel;
+
+window.loadDepartments = loadDepartments;
+window.loadPersonnel = loadPersonnel;
+window.loadLocations = loadLocations;
+
+// attach the filter modals
+bindFilterModal({ loadPersonnel, loadDepartments, loadLocations });
 
 // Debounce for search
 let _searchTimer = null;
@@ -91,151 +108,6 @@ $("#addBtn").click(function () {
         $("#addLocationModal").modal("show");
     }
 
-});
-
-const filterState = {
-    personnel: { departmentID: "", locationID: "" },
-    departments: { locationID: "" },
-    locations: {}
-};
-
-// Filter Button Logic
-$("#filterBtn").click(function () {
-    const onPersonnel = $("#personnelBtn").hasClass("active");
-    const onDepartments = $("#departmentsBtn").hasClass("active") || $("#departmentBtn").hasClass("active");
-    const onLocations = $("#locationsBtn").hasClass("active") || $("#locationBtn").hasClass("active");
-
-    // Show only the relevant filter block and populate accordingly
-    $("#filters-personnel").toggleClass("d-none", !onPersonnel);
-    $("#filters-departments").toggleClass("d-none", !onDepartments);
-    $("#filters-locations").toggleClass("d-none", !onLocations);
-
-    // Title
-    $("#filterModalLabel").text(
-        onPersonnel ? "Personnel Filters" :
-            onDepartments ? "Department Filters" :
-                "Location Filters"
-    );
-
-    if (onPersonnel) {
-        // Departments
-        $.ajax({
-            url: "libs/php/getAllDepartments.php",
-            type: "GET",
-            dataType: "json",
-            success: function (res) {
-                const $sel = $("#personnelFilterDepartment")
-                    .empty()
-                    .append('<option value="">All departments</option>');
-                (res && res.data ? res.data : []).forEach(function (d) {
-                    // expected shape: { id, department, location }
-                    $sel.append('<option value="' + d.id + '">' + d.department + '</option>');
-                });
-                if (filterState.personnel.departmentID) {
-                    $sel.val(filterState.personnel.departmentID);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error("Error loading departments:", textStatus, errorThrown);
-            }
-        });
-
-        // Locations
-        $.ajax({
-            url: "libs/php/getAllLocations.php",
-            type: "GET",
-            dataType: "json",
-            success: function (res) {
-                const $sel = $("#personnelFilterLocation")
-                    .empty()
-                    .append('<option value="">All locations</option>');
-                (res && res.data ? res.data : []).forEach(function (l) {
-                    // expected shape: { id, name }
-                    $sel.append('<option value="' + l.id + '">' + l.name + '</option>');
-                });
-                if (filterState.personnel.locationID) {
-                    $sel.val(filterState.personnel.locationID);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error("Error loading locations:", textStatus, errorThrown);
-            }
-        });
-    }
-
-    if (onDepartments) {
-        $.ajax({
-            url: "libs/php/getAllLocations.php",
-            type: "GET",
-            dataType: "json",
-            success: function (res) {
-                const $sel = $("#departmentsFilterLocation")
-                    .empty()
-                    .append('<option value="">All locations</option>');
-
-
-                (res && res.data ? res.data : []).forEach(function (loc) {
-                    $sel.append('<option value="' + loc.id + '">' + loc.name + '</option>');
-                });
-
-                if (filterState?.departments?.locationID) {
-                    $sel.val(filterState.departments.locationID);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error("Error loading locations (departments filter):", textStatus, errorThrown);
-            }
-        });
-    }
-
-
-    // Show modal
-    var modal = new bootstrap.Modal(document.getElementById("filterModal"));
-    modal.show();
-});
-
-// Apply filters
-$("#filterApplyBtn").on("click", function () {
-    const q = $("#searchInp").val().trim();
-
-    if ($("#personnelBtn").hasClass("active")) {
-        filterState.personnel.departmentID = $("#personnelFilterDepartment").val() || "";
-        filterState.personnel.locationID = $("#personnelFilterLocation").val() || "";
-        loadPersonnel(q, filterState.personnel);
-
-    } else if ($("#departmentsBtn").hasClass("active") || $("#departmentBtn").hasClass("active")) {
-        // Departments: filter by location
-        filterState.departments.locationID = $("#departmentsFilterLocation").val() || "";
-        loadDepartments(q, filterState.departments);
-
-    } else if ($("#locationsBtn").hasClass("active") || $("#locationBtn").hasClass("active")) {
-        // No filters yet for locations
-        loadLocations(q);
-    }
-
-    $("#filterModal").modal("hide");
-});
-
-// Clear filters
-$("#filterClearBtn").on("click", function () {
-    const q = $("#searchInp").val().trim();
-
-    if ($("#personnelBtn").hasClass("active")) {
-        filterState.personnel = { departmentID: "", locationID: "" };
-        $("#personnelFilterDepartment").val("");
-        $("#personnelFilterLocation").val("");
-        loadPersonnel(q, filterState.personnel);
-
-    } else if ($("#departmentsBtn").hasClass("active") || $("#departmentBtn").hasClass("active")) {
-        filterState.departments = { locationID: "" };
-        $("#departmentsFilterLocation").val("");
-        loadDepartments(q, filterState.departments);
-
-    } else if ($("#locationsBtn").hasClass("active") || $("#locationBtn").hasClass("active")) {
-        loadLocations(q);
-    }
-
-    $("#filterModal").modal("hide");
 });
 
 
@@ -671,186 +543,18 @@ $("#confirmDeleteLocationBtn").click(function () {
 
 
 
-function loadDepartments(q = "", filters = {}) {
-    const useSearch = (q || "").trim().length > 0;
-    const locationID = (filters && filters.locationID) ? String(filters.locationID) : "";
-
-    let url;
-    if (useSearch) {
-        // Search takes precedence over filters
-        url = "libs/php/SearchAll.php?txt=" + encodeURIComponent(q);
-    } else if (locationID) {
-        // Filtered list by location
-        url = "libs/php/getAllDepartments.php?locationID=" + encodeURIComponent(locationID);
-    } else {
-        // Unfiltered list
-        url = "libs/php/getAllDepartments.php";
-    }
-
-    $.ajax({
-        url: url,
-        type: "GET",
-        dataType: "json",
-        success: function (result) {
-            let rows = [];
-            if (useSearch) {
-                const found = (result && result.data && Array.isArray(result.data.found)) ? result.data.found : [];
-                rows = found
-                    .filter(x => (x.entity === "department") || (x.name && !x.firstName && !x.lastName))
-                    .map(d => ({
-                        id: d.id,
-                        department: d.name, // map to your expected field
-                        location: d.locationName ?? d.location ?? ""
-                    }));
-            } else {
-                rows = result.data || [];
-            }
-
-            const $tbody = $("#departmentTableBody").empty();
-            rows.forEach(dept => {
-                $tbody.append(`
-          <tr>
-            <td class="align-middle text-nowrap">${dept.department}</td>
-            <td class="align-middle text-nowrap d-none d-md-table-cell">${dept.location}</td>
-            <td class="align-middle text-end text-nowrap">
-              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#editDepartmentModal" data-id="${dept.id}">
-                <i class="fa-solid fa-pencil fa-fw"></i>
-              </button>
-              <button type="button" class="btn btn-primary btn-sm deleteDepartmentBtn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#deleteDepartmentModal"
-                      data-id="${dept.id}"
-                      data-name="${dept.department}">
-                <i class="fa-solid fa-trash fa-fw"></i>
-              </button>
-            </td>
-          </tr>
-        `);
-            });
-        },
-        error: function () {
-            alert("Failed to load departments");
-        }
-    });
-}
+// Departments logic
+window.loadDepartments = modLoadDepartments;
+// DELETE
+console.debug("[modules] departments loader installed");
 
 
+// Personnel logic
+window.loadPersonnel = modLoadPersonnel;
+// DELETE
+console.debug("[modules] personnel loader installed");
 
-function loadPersonnel(q = "", filters = {}) {
-    const dep = filters.departmentID || "";
-    const loc = filters.locationID || "";
-
-    let url;
-    if (q) {
-        // When searching, we use SearchAll.php
-        url = "libs/php/SearchAll.php?txt=" + encodeURIComponent(q);
-    } else if (dep || loc) {
-        // Filtered listing via getAll.php with params
-        const params = new URLSearchParams();
-        if (dep) params.append("departmentID", dep);
-        if (loc) params.append("locationID", loc);
-        url = "libs/php/getAll.php?" + params.toString();
-    } else {
-        // Unfiltered
-        url = "libs/php/getAll.php";
-    }
-
-    $.ajax({
-        url,
-        type: "GET",
-        dataType: "json",
-        success: function (result) {
-            let rows = [];
-            if (q) {
-                const found = (result?.data?.found) || [];
-                rows = found
-                    .filter(x => (x.entity === "personnel") || ("firstName" in x && "lastName" in x))
-                    .map(p => ({
-                        id: p.id,
-                        firstName: p.firstName,
-                        lastName: p.lastName,
-                        jobTitle: p.jobTitle ?? "",
-                        location: p.locationName ?? p.location ?? "",
-                        email: p.email ?? ""
-                    }));
-            } else {
-                rows = result.data || [];
-            }
-
-            const tbody = $("#personnelTableBody").empty();
-            rows.forEach(person => {
-                const row = `
-          <tr>
-            <td class="align-middle text-nowrap">${person.lastName}, ${person.firstName}</td>
-            <td class="align-middle text-nowrap d-none d-md-table-cell">${person.jobTitle}</td>
-            <td class="align-middle text-nowrap d-none d-md-table-cell">${person.location ?? ""}</td>
-            <td class="align-middle text-nowrap d-none d-md-table-cell">${person.email}</td>
-            <td class="text-end text-nowrap">
-              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#editPersonnelModal" data-id="${person.id}">
-                <i class="fa-solid fa-pencil fa-fw"></i>
-              </button>
-              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#deletePersonnelModal" data-id="${person.id}">
-                <i class="fa-solid fa-trash fa-fw"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-                tbody.append(row);
-            });
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error("AJAX Error:", textStatus, errorThrown);
-        }
-    });
-}
-
-
-
-function loadLocations(q = "") {
-    const useSearch = q.length > 0;
-    const url = useSearch
-        ? "libs/php/SearchAll.php?txt=" + encodeURIComponent(q)
-        : "libs/php/getAllLocations.php";
-
-    $.ajax({
-        url,
-        type: "GET",
-        dataType: "json",
-        success: function (result) {
-            let rows = [];
-            if (useSearch) {
-                const found = (result?.data?.found) || [];
-                rows = found
-                    .filter(x => (x.entity === "location") || (x.name && !x.department && !x.firstName))
-                    .map(l => ({ id: l.id, name: l.name }));
-            } else {
-                rows = result.data;
-            }
-
-            $("#locationTableBody").html("");
-            rows.forEach(location => {
-                $("#locationTableBody").append(`
-          <tr>
-            <td class="align-middle text-nowrap">${location.name}</td>
-            <td class="align-middle text-end text-nowrap">
-              <button type="button" class="btn btn-primary btn-sm editLocationBtn" data-id="${location.id}">
-                <i class="fa-solid fa-pencil fa-fw"></i>
-              </button>
-              <button type="button" class="btn btn-primary btn-sm deleteLocationBtn" data-id="${location.id}" data-name="${location.name}">
-                <i class="fa-solid fa-trash fa-fw"></i>
-              </button>
-            </td>
-          </tr>
-        `);
-            });
-        },
-        error: function () {
-            alert("AJAX error loading locations");
-        }
-    });
-}
-
-
+// Locations logic
+window.loadLocations = modLoadLocations;
+// DELETE
+console.debug("[modules] locations loader installed");
