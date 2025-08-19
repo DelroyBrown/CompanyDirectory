@@ -579,6 +579,69 @@
         </div>
     </div>
 
+    <!-- Filter modal for Personnel, Departments and Locations -->
+    <!-- Filter Modal (reusable across tabs) -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Filters</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- PERSONNEL filters -->
+                    <div id="filters-personnel" class="container-fluid">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="personnelFilterDepartment" class="form-label">Department</label>
+                                <select id="personnelFilterDepartment" class="form-select">
+                                    <option value="">All departments</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="personnelFilterLocation" class="form-label">Location</label>
+                                <select id="personnelFilterLocation" class="form-select">
+                                    <option value="">All locations</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DEPARTMENTS filters -->
+                    <div id="filters-departments" class="container-fluid d-none">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="departmentsFilterLocation" class="form-label">Location</label>
+                                <select id="departmentsFilterLocation" class="form-select">
+                                    <option value="">All locations</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LOCATIONS filters (placeholder; add later if needed) -->
+                    <div id="filters-locations" class="container-fluid d-none">
+                        <div class="row g-3">
+                            <!-- No filters yet -->
+                            <div class="col-12">
+                                <div class="alert alert-info mb-0">No filters available for Locations.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="filterClearBtn" type="button" class="btn btn-outline-secondary">Clear</button>
+                    <button id="filterApplyBtn" type="button" class="btn btn-primary">Apply</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
 
 
 

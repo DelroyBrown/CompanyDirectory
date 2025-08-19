@@ -1,74 +1,87 @@
 <?php
 
-	// example use from browser
-	// http://localhost/companydirectory/libs/php/getAll.php
+// example use from browser
+// http://localhost/companydirectory/libs/php/getAll.php
 
-	// remove next two lines for production
-	
-	ini_set('display_errors', 'On');
-	error_reporting(E_ALL);
+// remove next two lines for production
 
-	$executionStartTime = microtime(true);
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
 
-	include("config.php");
+$executionStartTime = microtime(true);
+include("config.php");
+header('Content-Type: application/json; charset=UTF-8');
 
-	header('Content-Type: application/json; charset=UTF-8');
+$conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port, $cd_socket);
+if ($conn->connect_errno) {
+	echo json_encode([
+		'status' => ['code' => '300', 'name' => 'failure', 'description' => 'database unavailable'],
+		'data' => []
+	]);
+	exit;
+}
+$conn->set_charset('utf8mb4');
 
-	$conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port, $cd_socket);
+$departmentID = isset($_GET['departmentID']) && $_GET['departmentID'] !== '' ? (int) $_GET['departmentID'] : null;
+$locationID = isset($_GET['locationID']) && $_GET['locationID'] !== '' ? (int) $_GET['locationID'] : null;
 
-	if (mysqli_connect_errno()) {
-		
-		$output['status']['code'] = "300";
-		$output['status']['name'] = "failure";
-		$output['status']['description'] = "database unavailable";
-		$output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
-		$output['data'] = [];
+$base = "
+  SELECT
+    p.id,
+    p.firstName,
+    p.lastName,
+    p.jobTitle,
+    p.email,
+    d.name AS department,
+    l.name AS location
+  FROM personnel p
+  LEFT JOIN department d ON d.id = p.departmentID
+  LEFT JOIN location   l ON l.id = d.locationID
+";
 
-		mysqli_close($conn);
+$where = [];
+$params = [];
+$types = "";
 
-		echo json_encode($output);
+if ($departmentID !== null) {
+	$where[] = "p.departmentID = ?";
+	$types .= "i";
+	$params[] = $departmentID;
+}
+if ($locationID !== null) {
+	$where[] = "l.id = ?";
+	$types .= "i";
+	$params[] = $locationID;
+}
 
-		exit;
+$sql = $base . (count($where) ? " WHERE " . implode(" AND ", $where) : "") .
+	" ORDER BY p.lastName, p.firstName, d.name, l.name";
 
-	}	
+$stmt = $conn->prepare($sql);
+if (!$stmt) {
+	echo json_encode(['status' => ['code' => '400', 'name' => 'error', 'description' => $conn->error], 'data' => []]);
+	exit;
+}
+if ($types) {
+	$stmt->bind_param($types, ...$params);
+}
 
-	// SQL does not accept parameters and so is not prepared
+$stmt->execute();
+$result = $stmt->get_result();
 
-	$query = 'SELECT p.id, p.lastName, p.firstName, p.jobTitle, p.email, d.name as department, l.name as location FROM personnel p LEFT JOIN department d ON (d.id = p.departmentID) LEFT JOIN location l ON (l.id = d.locationID) ORDER BY p.lastName, p.firstName, d.name, l.name';
+$data = [];
+while ($row = $result->fetch_assoc()) {
+	$data[] = $row;
+}
 
-	$result = $conn->query($query);
-	
-	if (!$result) {
+echo json_encode([
+	'status' => [
+		'code' => '200',
+		'name' => 'ok',
+		'description' => 'success',
+		'returnedIn' => (microtime(true) - $executionStartTime) * 1000 . ' ms'
+	],
+	'data' => $data
+]);
 
-		$output['status']['code'] = "400";
-		$output['status']['name'] = "executed";
-		$output['status']['description'] = "query failed";	
-		$output['data'] = [];
-
-		mysqli_close($conn);
-
-		echo json_encode($output); 
-
-		exit;
-
-	}
-   
-   	$data = [];
-
-	while ($row = mysqli_fetch_assoc($result)) {
-
-		array_push($data, $row);
-
-	}
-
-	$output['status']['code'] = "200";
-	$output['status']['name'] = "ok";
-	$output['status']['description'] = "success";
-	$output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
-	$output['data'] = $data;
-	
-	mysqli_close($conn);
-
-	echo json_encode($output); 
-
-?>
+$conn->close();

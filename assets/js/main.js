@@ -2,43 +2,33 @@ $(document).ready(function () {
     loadPersonnel();
 });
 
-$("#personnelBtn").click(function () {
-    loadPersonnel(); // Reload when tab is clicked
+
+$("#searchInp").on("input", function () {
+    const q = $(this).val().trim();
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => {
+        if ($("#personnelBtn").hasClass("active")) {
+            loadPersonnel(q);
+        } else if ($("#departmentsBtn").hasClass("active")) {
+            loadDepartments(q);
+        } else if ($("#locationsBtn").hasClass("active")) {
+            loadLocations(q);
+        }
+    }, SEARCH_DEBOUNCE_MS);
 });
 
 
-$("#searchInp").on("keyup", function () {
+$("#refreshBtn").on("click", function () {
 
-    // your code
-
-});
-
-$("#refreshBtn").click(function () {
+    const q = $("#searchInp").val().trim();
 
     if ($("#personnelBtn").hasClass("active")) {
-
-        // Refresh personnel table
-
-    } else {
-
-        if ($("#departmentsBtn").hasClass("active")) {
-
-            // Refresh department table
-
-        } else {
-
-            // Refresh location table
-
-        }
-
+        loadPersonnel();
+    } else if ($("#departmentsBtn").hasClass("active")) {
+        loadDepartments();
+    } else if ($("#locationsBtn").hasClass("active")) {
+        loadLocations();
     }
-
-});
-
-$("#filterBtn").click(function () {
-
-    // Open a modal of your own design that allows the user to apply a filter to the personnel table on either department or location
-
 });
 
 $("#addBtn").click(function () {
@@ -101,16 +91,23 @@ $("#addBtn").click(function () {
 });
 
 
+// Debounce for search
+let _searchTimer = null;
+const SEARCH_DEBOUNCE_MS = 300;
+
 $("#personnelBtn").click(function () {
-    loadPersonnel();
+    const q = $("#searchInp").val().trim();
+    loadPersonnel(q);
 });
 
 $("#departmentsBtn").click(function () {
-    loadDepartments();
+    const q = $("#searchInp").val().trim();
+    loadDepartments(q);
 });
 
 $("#locationsBtn").click(function () {
-    loadLocations();
+    const q = $("#searchInp").val().trim();
+    loadLocations(q);
 });
 
 $("#editPersonnelModal").on("show.bs.modal", function (e) {
@@ -530,39 +527,53 @@ $("#confirmDeleteLocationBtn").click(function () {
 
 
 
-function loadDepartments() {
+function loadDepartments(q = "") {
+    const useSearch = q.length > 0;
+    const url = useSearch
+        ? "libs/php/SearchAll.php?txt=" + encodeURIComponent(q)
+        : "libs/php/getAllDepartments.php";
+
     $.ajax({
-        url: "libs/php/getAllDepartments.php",
+        url,
         type: "GET",
         dataType: "json",
         success: function (result) {
-            console.log(result.data);
-
-            if (result.status.code === "200") {
-                $("#departmentTableBody").html(""); // Clear existing rows
-
-                result.data.forEach(dept => {
-                    $("#departmentTableBody").append(`
-                        <tr>
-                            <td class="align-middle text-nowrap">${dept.department}</td>
-                            <td class="align-middle text-nowrap d-none d-md-table-cell">${dept.location}</td>
-                            <td class="align-middle text-end text-nowrap">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#editDepartmentModal" data-id="${dept.id}">
-                                    <i class="fa-solid fa-pencil fa-fw"></i>
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm deleteDepartmentBtn" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#deleteDepartmentModal" 
-                                    data-id="${dept.id}" 
-                                    data-name="${dept.department}">
-                                    <i class="fa-solid fa-trash fa-fw"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `);
-                });
+            let rows = [];
+            if (useSearch) {
+                const found = (result?.data?.found) || [];
+                rows = found
+                    .filter(x => (x.entity === "department") || (x.name && x.location && !x.firstName && !x.lastName))
+                    .map(d => ({
+                        id: d.id,
+                        department: d.name,      // map to your expected field
+                        location: d.location ?? ""
+                    }));
+            } else {
+                rows = result.data;
             }
+
+            $("#departmentTableBody").html(""); // Clear existing rows
+            rows.forEach(dept => {
+                $("#departmentTableBody").append(`
+          <tr>
+            <td class="align-middle text-nowrap">${dept.department}</td>
+            <td class="align-middle text-nowrap d-none d-md-table-cell">${dept.location}</td>
+            <td class="align-middle text-end text-nowrap">
+              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                  data-bs-target="#editDepartmentModal" data-id="${dept.id}">
+                <i class="fa-solid fa-pencil fa-fw"></i>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm deleteDepartmentBtn" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#deleteDepartmentModal" 
+                  data-id="${dept.id}" 
+                  data-name="${dept.department}">
+                <i class="fa-solid fa-trash fa-fw"></i>
+              </button>
+            </td>
+          </tr>
+        `);
+            });
         },
         error: function () {
             alert("Failed to load departments");
@@ -570,50 +581,70 @@ function loadDepartments() {
     });
 }
 
-function loadPersonnel() {
+
+function loadPersonnel(q = "", filters = {}) {
+    const dep = filters.departmentID || "";
+    const loc = filters.locationID || "";
+
+    let url;
+    if (q) {
+        // When searching, we use SearchAll.php
+        url = "libs/php/SearchAll.php?txt=" + encodeURIComponent(q);
+    } else if (dep || loc) {
+        // Filtered listing via getAll.php with params
+        const params = new URLSearchParams();
+        if (dep) params.append("departmentID", dep);
+        if (loc) params.append("locationID", loc);
+        url = "libs/php/getAll.php?" + params.toString();
+    } else {
+        // Unfiltered
+        url = "libs/php/getAll.php";
+    }
+
     $.ajax({
-        url: "libs/php/getAll.php",
+        url,
         type: "GET",
         dataType: "json",
         success: function (result) {
-            if (result.status.code == 200) {
-                const personnelData = result.data;
-                const tableBody = $("#personnelTableBody");
-
-                tableBody.empty(); // Clear old rows
-
-                personnelData.forEach(person => {
-                    const row = `
-                        <tr>
-                            <td class="align-middle text-nowrap">
-                                ${person.lastName}, ${person.firstName}
-                            </td>
-                            <td class="align-middle text-nowrap d-none d-md-table-cell">
-                                ${person.jobTitle}
-                            </td>
-                            <td class="align-middle text-nowrap d-none d-md-table-cell">
-                                ${person.location}
-                            </td>
-                            <td class="align-middle text-nowrap d-none d-md-table-cell">
-                                ${person.email}
-                            </td>
-                            <td class="text-end text-nowrap">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#editPersonnelModal" data-id="${person.id}">
-                                    <i class="fa-solid fa-pencil fa-fw"></i>
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#deletePersonnelModal" data-id="${person.id}">
-                                    <i class="fa-solid fa-trash fa-fw"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                    tableBody.append(row);
-                });
+            let rows = [];
+            if (q) {
+                const found = (result?.data?.found) || [];
+                rows = found
+                    .filter(x => (x.entity === "personnel") || ("firstName" in x && "lastName" in x))
+                    .map(p => ({
+                        id: p.id,
+                        firstName: p.firstName,
+                        lastName: p.lastName,
+                        jobTitle: p.jobTitle ?? "",
+                        location: p.locationName ?? p.location ?? "",
+                        email: p.email ?? ""
+                    }));
             } else {
-                console.error("Error loading personnel:", result.status.description);
+                rows = result.data || [];
             }
+
+            const tbody = $("#personnelTableBody").empty();
+            rows.forEach(person => {
+                const row = `
+          <tr>
+            <td class="align-middle text-nowrap">${person.lastName}, ${person.firstName}</td>
+            <td class="align-middle text-nowrap d-none d-md-table-cell">${person.jobTitle}</td>
+            <td class="align-middle text-nowrap d-none d-md-table-cell">${person.location ?? ""}</td>
+            <td class="align-middle text-nowrap d-none d-md-table-cell">${person.email}</td>
+            <td class="text-end text-nowrap">
+              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                      data-bs-target="#editPersonnelModal" data-id="${person.id}">
+                <i class="fa-solid fa-pencil fa-fw"></i>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                      data-bs-target="#deletePersonnelModal" data-id="${person.id}">
+                <i class="fa-solid fa-trash fa-fw"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+                tbody.append(row);
+            });
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.error("AJAX Error:", textStatus, errorThrown);
@@ -621,37 +652,50 @@ function loadPersonnel() {
     });
 }
 
-function loadLocations() {
+
+
+function loadLocations(q = "") {
+    const useSearch = q.length > 0;
+    const url = useSearch
+        ? "libs/php/SearchAll.php?txt=" + encodeURIComponent(q)
+        : "libs/php/getAllLocations.php";
+
     $.ajax({
-        url: "libs/php/getAllLocations.php",
+        url,
         type: "GET",
         dataType: "json",
         success: function (result) {
-            if (result.status.code === "200") {
-                $("#locationTableBody").html("")
-
-                result.data.forEach(location => {
-                    $("#locationTableBody").append(`
-                        <tr>
-                            <td class="align-middle text-nowrap">${location.name}</td>
-                            <td class="align-middle text-end text-nowrap">
-                                <button type="button" class="btn btn-primary btn-sm editLocationBtn" data-id="${location.id}">
-                                    <i class="fa-solid fa-pencil fa-fw"></i>
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm deleteLocationBtn" data-id="${location.id}" data-name="${location.name}">
-                                    <i class="fa-solid fa-trash fa-fw"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `);
-                });
+            let rows = [];
+            if (useSearch) {
+                const found = (result?.data?.found) || [];
+                rows = found
+                    .filter(x => (x.entity === "location") || (x.name && !x.department && !x.firstName))
+                    .map(l => ({ id: l.id, name: l.name }));
             } else {
-                alert("Failed to load locations");
+                rows = result.data;
             }
+
+            $("#locationTableBody").html("");
+            rows.forEach(location => {
+                $("#locationTableBody").append(`
+          <tr>
+            <td class="align-middle text-nowrap">${location.name}</td>
+            <td class="align-middle text-end text-nowrap">
+              <button type="button" class="btn btn-primary btn-sm editLocationBtn" data-id="${location.id}">
+                <i class="fa-solid fa-pencil fa-fw"></i>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm deleteLocationBtn" data-id="${location.id}" data-name="${location.name}">
+                <i class="fa-solid fa-trash fa-fw"></i>
+              </button>
+            </td>
+          </tr>
+        `);
+            });
         },
         error: function () {
             alert("AJAX error loading locations");
         }
     });
 }
+
 
