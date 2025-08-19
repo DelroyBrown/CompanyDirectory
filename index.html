@@ -365,6 +365,52 @@
         </div>
     </div>
 
+    <!-- Add department modal -->
+    <div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-success">
+
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="addDepartmentModalLabel">
+                        <i class="fa-solid fa-building-circle-arrow-right me-2"></i>
+                        Add Department
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <form id="addDepartmentForm">
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="addDepartmentName" class="form-label">Department Name</label>
+                            <input type="text" class="form-control" id="addDepartmentName" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="addDepartmentLocation" class="form-label">Location</label>
+                            <select class="form-select" id="addDepartmentLocation" required>
+                                <!-- dynamically populated -->
+                            </select>
+                        </div>
+
+                        <div id="addDepartmentError" class="alert alert-danger d-none" role="alert">
+                            <i class="fa-solid fa-circle-exclamation me-2"></i>
+                            That department already exists. Please choose a different name.
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">ADD</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <div id="addPersonnelModal" class="modal fade" tabindex="-1" data-bs-backdrop="false" data-bs-keyboard="false"
         aria-labelledby="addPersonnelLabel" aria-hidden="true">

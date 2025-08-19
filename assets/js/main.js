@@ -68,7 +68,31 @@ $("#addBtn").click(function () {
                     $("#addPersonnelModal").modal("show");
                 }
             }
-        })
+        });
+
+    } else if ($("#departmentsBtn").hasClass("active")) {
+        $("#addDepartmentForm")[0].reset();
+
+        $.ajax({
+            url: "libs/php/getAllLocations.php",
+            type: "GET",
+            dataType: "json",
+            success: function (result) {
+                if (result.status.code === "200") {
+                    $("#addDepartmentLocation").html("");
+                    result.data.forEach(loc => {
+                        $("#addDepartmentLocation").append(
+                            $("<option>", {
+                                value: loc.id,
+                                text: loc.name
+                            })
+                        );
+                    });
+
+                    $("#addDepartmentModal").modal("show");
+                }
+            }
+        });
     }
 
 });
@@ -269,9 +293,41 @@ $("#editDepartmentForm").on("submit", function (e) {
     });
 });
 
+// Add Department Form
+$("#addDepartmentForm").on("submit", function (e) {
+    e.preventDefault();
 
-// Executes when the form button with type="submit" is clicked
+    const name = $("#addDepartmentName").val().trim();
+    const locationID = $("#addDepartmentLocation").val();
 
+    $.ajax({
+        url: "libs/php/insertDepartment.php",
+        type: "POST",
+        dataType: "json",
+        data: {
+            name: name,
+            locationID: locationID
+        },
+        success: function (result) {
+            if (result.status.code === "200") {
+                $("#addDepartmentModal").modal("hide");
+                loadDepartments();
+            } else if (result.status.code === "409") {
+                $("#addDepartmentError")
+                    .removeClass("d-none")
+                    .text("This department already exists, please choose a different name");
+            } else {
+                alert("Department insert failed");
+            }
+        },
+        error: function () {
+            alert("AJAX error while adding department");
+        }
+    });
+});
+
+
+// Edit Personnell form
 $("#editPersonnelForm").on("submit", function (e) {
 
     // Executes when the form button with type="submit" is clicked
@@ -307,6 +363,7 @@ $("#editPersonnelForm").on("submit", function (e) {
 
 });
 
+// Add Personnell form
 $("#addPersonnelForm").on("submit", function (e) {
     e.preventDefault();
 
