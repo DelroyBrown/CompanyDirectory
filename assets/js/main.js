@@ -2,6 +2,8 @@ import { loadDepartments as modLoadDepartments } from "./departments.js";
 import { loadLocations as modLoadLocations } from "./locations.js";
 import { loadPersonnel as modLoadPersonnel } from "./personnel.js";
 import { bindFilterModal } from "./filters.js";
+import { bindAddModals } from "./addModals.js";
+
 
 
 $(document).ready(function () {
@@ -18,6 +20,9 @@ window.loadLocations = loadLocations;
 
 // attach the filter modals
 bindFilterModal({ loadPersonnel, loadDepartments, loadLocations });
+
+bindAddModals();
+
 
 // Debounce for search
 let _searchTimer = null;
@@ -51,64 +56,16 @@ $("#refreshBtn").on("click", function () {
     }
 });
 
-$("#addBtn").click(function () {
-
+$("#addBtn").off("click").on("click", function () {
     if ($("#personnelBtn").hasClass("active")) {
-
-        $("#addPersonnelForm")[0].reset();
-
-        $.ajax({
-            url: "libs/php/getAllDepartments.php",
-            type: "GET",
-            dataType: "json",
-            success: function (result) {
-                if (result.status.code === "200") {
-                    $("#addPersonnelDepartment").html("");
-                    result.data.forEach(dept => {
-                        $("#addPersonnelDepartment").append(
-                            $("<option>", {
-                                value: dept.id,
-                                text: dept.department
-                            })
-                        );
-                    });
-
-                    $("#addPersonnelModal").modal("show");
-                }
-            }
-        });
-
-    } else if ($("#departmentsBtn").hasClass("active")) {
-        $("#addDepartmentForm")[0].reset();
-
-        $.ajax({
-            url: "libs/php/getAllLocations.php",
-            type: "GET",
-            dataType: "json",
-            success: function (result) {
-                if (result.status.code === "200") {
-                    $("#addDepartmentLocation").html("");
-                    result.data.forEach(loc => {
-                        $("#addDepartmentLocation").append(
-                            $("<option>", {
-                                value: loc.id,
-                                text: loc.name
-                            })
-                        );
-                    });
-
-                    $("#addDepartmentModal").modal("show");
-                }
-            }
-        });
-
-    } else if ($("#locationsBtn").hasClass("active")) {
-        $("#addLocationForm")[0].reset();
-        $("#addLocationError").addClass("d-none");
+        $("#addPersonnelModal").modal("show");
+    } else if ($("#departmentsBtn").hasClass("active") || $("#departmentBtn").hasClass("active")) {
+        $("#addDepartmentModal").modal("show");
+    } else if ($("#locationsBtn").hasClass("active") || $("#locationBtn").hasClass("active")) {
         $("#addLocationModal").modal("show");
     }
-
 });
+
 
 
 $("#personnelBtn").click(function () {
@@ -539,8 +496,6 @@ $("#confirmDeleteLocationBtn").click(function () {
         }
     });
 });
-
-
 
 
 // Departments logic
