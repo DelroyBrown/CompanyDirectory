@@ -5,6 +5,7 @@ import { bindFilterModal } from "./filters.js";
 import { bindAddModals } from "./addModals.js";
 import { bindSearch } from "./search.js";
 import { bindRefresh } from "./refresh.js";
+import { bindPersonnelUI } from "./personnel.ui.js";
 
 
 
@@ -40,6 +41,9 @@ bindRefresh({
     loadLocations: window.loadLocations,
 
 });
+
+// bind personnel ui
+bindPersonnelUI({ loadPersonnel: window.loadPersonnel });
 
 $("#addBtn").off("click").on("click", function () {
     if ($("#personnelBtn").hasClass("active")) {

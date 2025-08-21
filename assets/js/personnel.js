@@ -6,7 +6,7 @@ export function loadPersonnel(q = "", filters = {}) {
 
     let url;
     if (q) {
-        // When searching, we use SearchAll.php
+        // When searching use SearchAll.php
         url = "libs/php/SearchAll.php?txt=" + encodeURIComponent(q);
     } else if (dep || loc) {
         // Filtered listing via getAll.php with params

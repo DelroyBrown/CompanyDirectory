@@ -22,4 +22,12 @@ export const API = {
             dataType: "json",
         });
     },
+    getPersonnelById(id) {
+        return $.ajax({
+            url: "libs/php/getPersonnelByID.php",
+            type: "GET",
+            dataType: "json",
+            data: { id }
+        });
+    },
 };
