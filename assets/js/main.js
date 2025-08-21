@@ -1,4 +1,4 @@
-import { loadDepartments as modLoadDepartments } from "./departments.js";
+import { loadDepartments as modLoadDepartments } from "./departments/departments.js";
 import { loadLocations as modLoadLocations } from "./locations.js";
 import { loadPersonnel as modLoadPersonnel } from "./personnel/personnel.js";
 import { bindFilterModal } from "./filters.js";
@@ -6,8 +6,7 @@ import { bindAddModals } from "./addModals.js";
 import { bindSearch } from "./search.js";
 import { bindRefresh } from "./refresh.js";
 import { bindPersonnelUI } from "./personnel/personnel.ui.js";
-
-
+import { bindDepartmentsUI } from "./departments/department.ui.js";
 
 $(document).ready(function () {
     loadPersonnel();
@@ -44,6 +43,9 @@ bindRefresh({
 
 // bind personnel ui
 bindPersonnelUI({ loadPersonnel: window.loadPersonnel });
+
+// bind departments ui
+bindDepartmentsUI({ loadDepartments: window.loadDepartments });
 
 $("#addBtn").off("click").on("click", function () {
     if ($("#personnelBtn").hasClass("active")) {
@@ -179,113 +181,6 @@ $("#confirmDeleteDepartmentBtn").click(function () {
         }
     });
 });
-
-// Edit Department
-$("#editDepartmentModal").on("show.bs.modal", function (e) {
-    const id = $(e.relatedTarget).data("id");
-
-    // Clear any old data
-    $("#editDepartmentForm")[0].reset();
-    $("#editDepartmentID").val(id);
-
-    // Load locations for the dropdown
-    $.ajax({
-        url: "libs/php/getAllLocations.php",
-        type: "GET",
-        dataType: "json",
-        success: function (result) {
-            if (result.status.code === "200") {
-                $("#editDepartmentLocation").html("");
-                result.data.forEach(location => {
-                    $("#editDepartmentLocation").append(
-                        $("<option>", {
-                            value: location.id,
-                            text: location.name
-                        })
-                    );
-                });
-            }
-        }
-    });
-
-    // Loads department details
-    $.ajax({
-        url: "libs/php/getDepartmentByID.php",
-        type: "GET",
-        dataType: "json",
-        data: { id: id },
-        success: function (result) {
-            if (result.status.code === "200") {
-                const dept = result.data[0];
-                $("#editDepartmentName").val(dept.name);
-                $("#editDepartmentLocation").val(dept.locationID);
-            }
-        }
-    });
-
-
-});
-
-// Submit department edit
-$("#editDepartmentForm").on("submit", function (e) {
-    e.preventDefault();
-
-    $.ajax({
-        url: "libs/php/updateDepartment.php",
-        type: "POST",
-        dataType: "json",
-        data: {
-            id: $("#editDepartmentID").val(),
-            name: $("#editDepartmentName").val(),
-            locationID: $("#editDepartmentLocation").val()
-        },
-        success: function (result) {
-            if (result.status.code === "200") {
-                $("#editDepartmentModal").modal("hide");
-                loadDepartments();
-            } else {
-                alert("Update failed.")
-            }
-        },
-        error: function () {
-            alert("AJAX error during update.");
-        }
-    });
-});
-
-// Add Department Form
-$("#addDepartmentForm").on("submit", function (e) {
-    e.preventDefault();
-
-    const name = $("#addDepartmentName").val().trim();
-    const locationID = $("#addDepartmentLocation").val();
-
-    $.ajax({
-        url: "libs/php/insertDepartment.php",
-        type: "POST",
-        dataType: "json",
-        data: {
-            name: name,
-            locationID: locationID
-        },
-        success: function (result) {
-            if (result.status.code === "200") {
-                $("#addDepartmentModal").modal("hide");
-                loadDepartments();
-            } else if (result.status.code === "409") {
-                $("#addDepartmentError")
-                    .removeClass("d-none")
-                    .text("This department already exists, please choose a different name");
-            } else {
-                alert("Department insert failed");
-            }
-        },
-        error: function () {
-            alert("AJAX error while adding department");
-        }
-    });
-});
-
 
 // Edit Personnell form
 $("#editPersonnelForm").on("submit", function (e) {

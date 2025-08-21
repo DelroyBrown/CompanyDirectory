@@ -133,17 +133,14 @@
                                 London
                             </td>
                             <td class="align-middle text-end text-nowrap">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#editDepartmentModal" data-id="1">
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#editDepartmentModal" data-id="{{id}}">
                                     <i class="fa-solid fa-pencil fa-fw"></i>
                                 </button>
-                                <button type="button" class="btn btn-primary btn-sm deleteDepartmentBtn"
-                                    data-bs-toggle="modal" data-bs-target="#deleteDepartmentModal" data-id="${dept.id}"
-                                    data-name="${dept.department}">
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#deleteDepartmentModal" data-id="{{id}}" data-name="{{department}}">
                                     <i class="fa-solid fa-trash fa-fw"></i>
                                 </button>
-
-
                             </td>
                         </tr>
 
@@ -248,20 +245,22 @@
 
                 <div class="modal-body">
                     <form id="editDepartmentForm">
-                        <input type="hidden" id="editDepartmentID">
+                        <input type="hidden" id="editDepartmentID" name="id">
 
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="editDepartmentName"
+                            <input type="text" class="form-control" id="editDepartmentName" name="name"
                                 placeholder="Department name" required>
                             <label for="editDepartmentName">Department Name</label>
                         </div>
 
                         <div class="form-floating">
-                            <select class="form-select" id="editDepartmentLocation" placeholder="Location" required>
-                                <!-- options loaded via JS -->
+                            <select class="form-select" id="editDepartmentLocation" name="locationID"
+                                placeholder="Location" required>
+                                <!-- options loaded from JS -->
                             </select>
                             <label for="editDepartmentLocation">Location</label>
                         </div>
+
                     </form>
                 </div>
 
@@ -296,12 +295,12 @@
 
                         <div class="mb-3">
                             <label for="addDepartmentName" class="form-label">Department Name</label>
-                            <input type="text" class="form-control" id="addDepartmentName" required />
+                            <input type="text" class="form-control" id="addDepartmentName" name="name" required />
                         </div>
 
                         <div class="mb-3">
                             <label for="addDepartmentLocation" class="form-label">Location</label>
-                            <select class="form-select" id="addDepartmentLocation" required>
+                            <select class="form-select" id="addDepartmentLocation" name="locationID" required>
                                 <!-- dynamically populated -->
                             </select>
                         </div>
@@ -318,6 +317,7 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>

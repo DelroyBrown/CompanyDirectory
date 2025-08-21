@@ -30,4 +30,12 @@ export const API = {
             data: { id }
         });
     },
+    getDepartmentById(id) {
+        return $.ajax({
+            url: "libs/php/getDepartmentByID.php",
+            type: "GET",
+            dataType: "json",
+            data: { id }
+        });
+    },
 };

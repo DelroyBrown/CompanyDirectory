@@ -1,4 +1,4 @@
-import { API } from "./api.js";
+import { API } from "../api.js";
 
 export function loadDepartments(q = "", filters = {}) {
     const useSearch = (q || "").trim().length > 0;
