@@ -114,7 +114,7 @@ export function bindDepartmentsUI({ loadDepartments }) {
             const id = $("#deleteDepartmentID").val();
             if (!id) return;
             $.ajax({
-                url: "libs/php/deleteDepartment.php",
+                url: "libs/php/deleteDepartmentByID.php",
                 type: "POST",
                 dataType: "json",
                 data: { id }

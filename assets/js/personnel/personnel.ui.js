@@ -11,7 +11,7 @@ function populateDepartments($select) {
 }
 
 export function bindPersonnelUI({ loadPersonnel }) {
-    
+
     // ADD PERSONNEL
     $("#addPersonnelModal")
         .off("show.bs.modal")
@@ -82,7 +82,7 @@ export function bindPersonnelUI({ loadPersonnel }) {
             e.preventDefault();
             const data = $(this).serialize();
             $.ajax({
-                url: "libs/php/updatePersonnel.php",
+                url: "libs/php/updatePersonnelByID.php",
                 type: "POST",
                 dataType: "json",
                 data
