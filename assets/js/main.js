@@ -3,6 +3,7 @@ import { loadLocations as modLoadLocations } from "./locations.js";
 import { loadPersonnel as modLoadPersonnel } from "./personnel.js";
 import { bindFilterModal } from "./filters.js";
 import { bindAddModals } from "./addModals.js";
+import { bindSearch } from "./search.js";
 
 
 
@@ -24,23 +25,11 @@ bindFilterModal({ loadPersonnel, loadDepartments, loadLocations });
 // attach the modals
 bindAddModals();
 
-
-// Debounce for search
-let _searchTimer = null;
-const SEARCH_DEBOUNCE_MS = 300;
-
-$("#searchInp").on("input", function () {
-    const q = $(this).val().trim();
-    clearTimeout(_searchTimer);
-    _searchTimer = setTimeout(() => {
-        if ($("#personnelBtn").hasClass("active")) {
-            loadPersonnel(q);
-        } else if ($("#departmentsBtn").hasClass("active")) {
-            loadDepartments(q);
-        } else if ($("#locationsBtn").hasClass("active")) {
-            loadLocations(q);
-        }
-    }, SEARCH_DEBOUNCE_MS);
+// bind the search
+bindSearch({
+    loadPersonnel: window.loadPersonnel,
+    loadDepartments: window.loadDepartments,
+    loadLocations: window.loadLocations
 });
 
 
