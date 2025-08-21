@@ -8,6 +8,7 @@ import { bindSearch } from "./search.js";
 import { bindRefresh } from "./refresh.js";
 import { bindPersonnelUI } from "./personnel/personnel.ui.js";
 import { bindDepartmentsUI } from "./departments/department.ui.js";
+import { bindLocationsUI } from "./locations.ui.js";
 
 $(document).ready(function () {
     loadPersonnel();
@@ -48,6 +49,9 @@ bindPersonnelUI({ loadPersonnel: window.loadPersonnel });
 // bind departments ui
 bindDepartmentsUI({ loadDepartments: window.loadDepartments });
 
+// bind locations ui
+bindLocationsUI({ loadLocations: window.loadLocations });
+
 $("#addBtn").off("click").on("click", function () {
     if ($("#personnelBtn").hasClass("active")) {
         $("#addPersonnelModal").modal("show");
@@ -65,138 +69,13 @@ $("#personnelBtn").click(function () {
 });
 
 $("#departmentsBtn").off("click").on("click", function () {
-  $("#searchInp").val("");
-  loadDepartments("", filterState.departments);
+    $("#searchInp").val("");
+    loadDepartments("", filterState.departments);
 });
 
 $("#locationsBtn").click(function () {
     const q = $("#searchInp").val().trim();
     loadLocations(q);
-});
-
-// Add Location Form
-$("#addLocationForm").on("submit", function (e) {
-    e.preventDefault();
-
-    const name = $("#addLocationName").val().trim();
-
-    $.ajax({
-        url: "libs/php/insertLocation.php",
-        type: "POST",
-        dataType: "json",
-        data: { name: name },
-        success: function (result) {
-            if (result.status.code === "200") {
-                $("#addLocationModal").modal("hide");
-                $("#addLocationForm")[0].reset();
-                $("#addLocationError").addClass("d-none");
-
-                loadLocations();
-            } else if (result.status.code) {
-                $("#addLocationError").removeClass("d-none");
-            } else {
-                alert("Failed to add location");
-            }
-        },
-        error: function () {
-            alert("AJAX error while adding location.")
-        }
-    });
-});
-
-// Edit Location modal and populate
-$(document).on("click", ".editLocationBtn", function () {
-    const id = $(this).data("id");
-
-    $("#editLocationForm")[0].reset();
-    $("#editLocationID").val(id);
-    $("#editLocationError").addClass("d-none");
-
-
-    $.ajax({
-        url: "libs/php/getLocationByID.php",
-        type: "GET",
-        dataType: "json",
-        data: { id: id },
-        success: function (result) {
-            if (result.status.code === "200") {
-                const location = result.data[0];
-                $("#editLocationName").val(location.name);
-                $("#editLocationModal").modal("show");
-            } else {
-                alert("Failed to fetch location details.");
-            }
-        },
-        error: function () {
-            alert("AJAX error fetching location.");
-        }
-    });
-});
-
-// Edit location form
-$("#editLocationForm").on("submit", function (e) {
-    e.preventDefault();
-
-    const id = $("#editLocationID").val();
-    const name = $("#editLocationName").val().trim();
-
-    $.ajax({
-        url: "libs/php/updateLocation.php",
-        type: "POST",
-        dataType: "json",
-        data: { id: id, name: name },
-        success: function (result) {
-            if (result.status.code === "200") {
-                $("#editLocationModal").modal("hide");
-                loadLocations();
-            } else if (result.status.code === "409") {
-                $("#editLocationError").removeClass("d-none");
-            } else {
-                alert("Failed to update location");
-            }
-        },
-        error: function () {
-            alert("AJAX error updating location");
-        }
-    });
-});
-
-// Delete location
-$(document).on("click", ".deleteLocationBtn", function () {
-    const id = $(this).data("id");
-    const name = $(this).data("name");
-
-    $("#deleteLocationID").val(id);
-    $("#deleteLocationName").val(name);
-    $("#deleteLocationMessage").html(`Are you sure you want to delete <strong>${name}</strong>?`);
-    $("#deleteLocationError").addClass("d-none");
-
-    $("#deleteLocationModal").modal("show");
-});
-
-// Handle delete confirmation
-$("#confirmDeleteLocationBtn").click(function () {
-    const id = $("#deleteLocationID").val();
-
-    $.ajax({
-        url: "libs/php/deleteLocationByID.php",
-        type: "POST",
-        dataType: "json",
-        data: { id: id },
-        success: function (result) {
-            if (result.status.code === "200") {
-                $("#deleteLocationModal").modal("hide");
-                loadLocations();
-            } else if (result.status.code === "409") {
-                $("#deleteLocationError").removeClass("d-none");
-            } else {
-                alert("Delete failed.");
-            }
-        },
-        error: function () {
-            alert("AJAX error during delete.");
-        }
-    });
 });
 
 

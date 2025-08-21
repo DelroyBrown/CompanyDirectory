@@ -156,19 +156,17 @@
                 <table class="table table-hover">
 
                     <tbody id="locationTableBody">
-
-                        <!-- Below is an example row. Create a JS function that interogates the database and 
-                        dynamically creates the HTML for the table contents. -->
-
                         <tr>
                             <td class="align-middle text-nowrap">
                                 London
                             </td>
                             <td class="align-middle text-end text-nowrap">
-                                <button type="button" class="btn btn-primary btn-sm">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#editLocationModal" data-id="${loc.id}">
                                     <i class="fa-solid fa-pencil fa-fw"></i>
                                 </button>
-                                <button type="button" class="btn btn-primary btn-sm">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#deleteLocationModal" data-id="${loc.id}" data-name="${loc.name}">
                                     <i class="fa-solid fa-trash fa-fw"></i>
                                 </button>
                             </td>
@@ -403,20 +401,20 @@
                         <input type="hidden" id="editPersonnelEmployeeID" name="id">
 
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="editPersonnelFirstName" name="firstName" placeholder="First name"
-                                required>
+                            <input type="text" class="form-control" id="editPersonnelFirstName" name="firstName"
+                                placeholder="First name" required>
                             <label for="editPersonnelFirstName">First name</label>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="editPersonnelLastName" name="lastName" placeholder="Last name"
-                                required>
+                            <input type="text" class="form-control" id="editPersonnelLastName" name="lastName"
+                                placeholder="Last name" required>
                             <label for="editPersonnelLastName">Last name</label>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="editPersonnelJobTitle" name="jobTitle" placeholder="Job title"
-                                required>
+                            <input type="text" class="form-control" id="editPersonnelJobTitle" name="jobTitle"
+                                placeholder="Job title" required>
                             <label for="editPersonnelJobTitle">Job Title</label>
                         </div>
 
@@ -427,7 +425,8 @@
                         </div>
 
                         <div class="form-floating">
-                            <select class="form-select" name="departmentID" id="editPersonnelDepartment" placeholder="Department">
+                            <select class="form-select" name="departmentID" id="editPersonnelDepartment"
+                                placeholder="Department">
                             </select>
                             <label for="editPersonnelDepartment">Department</label>
                         </div>
@@ -495,7 +494,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="addLocationName" class="form-label">Location Name</label>
-                            <input type="text" class="form-control" id="addLocationName" required />
+                            <input type="text" name="name" class="form-control" id="addLocationName" required />
                             <div id="addLocationError" class="alert alert-danger d-none mt-2" role="alert">
                                 <i class="fa-solid fa-circle-exclamation me-2"></i>
                                 This location already exists. Please choose a different name.
@@ -527,10 +526,10 @@
 
                 <form id="editLocationForm">
                     <div class="modal-body">
-                        <input type="hidden" id="editLocationID">
+                        <input type="hidden" name="id" id="editLocationID">
                         <div class="mb-3">
                             <label for="editLocationName" class="form-label">Location Name</label>
-                            <input type="text" class="form-control" id="editLocationName" required />
+                            <input type="text" name="name" class="form-control" id="editLocationName" required />
                             <div id="editLocationError" class="alert alert-danger d-none mt-2" role="alert">
                                 <i class="fa-solid fa-circle-exclamation me-2"></i>
                                 This location name already exists. Please choose another.
@@ -638,9 +637,6 @@
             </div>
         </div>
     </div>
-
-
-
 
 
 
