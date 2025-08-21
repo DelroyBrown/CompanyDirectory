@@ -1,11 +1,11 @@
 import { loadDepartments as modLoadDepartments } from "./departments.js";
 import { loadLocations as modLoadLocations } from "./locations.js";
-import { loadPersonnel as modLoadPersonnel } from "./personnel.js";
+import { loadPersonnel as modLoadPersonnel } from "./personnel/personnel.js";
 import { bindFilterModal } from "./filters.js";
 import { bindAddModals } from "./addModals.js";
 import { bindSearch } from "./search.js";
 import { bindRefresh } from "./refresh.js";
-import { bindPersonnelUI } from "./personnel.ui.js";
+import { bindPersonnelUI } from "./personnel/personnel.ui.js";
 
 
 

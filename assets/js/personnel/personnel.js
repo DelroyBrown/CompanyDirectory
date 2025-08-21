@@ -1,4 +1,4 @@
-import { API } from "./api.js";
+import { API } from "../api.js";
 
 export function loadPersonnel(q = "", filters = {}) {
     const dep = filters.departmentID || "";
