@@ -1,7 +1,7 @@
 import { API } from "./api.js";
 
 export function bindAddModals() {
-    // Add Personnel: reset + populate departments when modal is about to show
+    // Add Personnel
     $("#addPersonnelModal").off("show.bs.modal").on("show.bs.modal", function () {
         $("#addPersonnelForm")[0]?.reset();
         const $dep = $("#addPersonnelDepartment").empty();
@@ -12,7 +12,7 @@ export function bindAddModals() {
         });
     });
 
-    // Add Department: reset + populate locations when modal is about to show
+    // Add Department
     $("#addDepartmentModal").off("show.bs.modal").on("show.bs.modal", function () {
         $("#addDepartmentForm")[0]?.reset();
         const $loc = $("#addDepartmentLocation").empty();

@@ -21,6 +21,7 @@ window.loadLocations = loadLocations;
 // attach the filter modals
 bindFilterModal({ loadPersonnel, loadDepartments, loadLocations });
 
+// attach the modals
 bindAddModals();
 
 
