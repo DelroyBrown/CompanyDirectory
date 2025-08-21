@@ -386,9 +386,6 @@
     <div id="editPersonnelModal" class="modal fade" tabindex="-1" data-bs-backdrop="false" data-bs-keyboard="false"
         aria-labelledby="exampleModalLabel" aria-hidden="true">
 
-        <!--   the last two classes centre the modal and, if the content is too long, ensures  -->
-        <!--   that the header and footer are always on display by making the body scroll -->
-
         <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable">
 
             <div class="modal-content shadow">
@@ -406,31 +403,31 @@
                         <input type="hidden" id="editPersonnelEmployeeID">
 
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="editPersonnelFirstName" placeholder="First name"
+                            <input type="text" class="form-control" id="editPersonnelFirstName" name="firstName" placeholder="First name"
                                 required>
                             <label for="editPersonnelFirstName">First name</label>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="editPersonnelLastName" placeholder="Last name"
+                            <input type="text" class="form-control" id="editPersonnelLastName" name="lastName" placeholder="Last name"
                                 required>
                             <label for="editPersonnelLastName">Last name</label>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="editPersonnelJobTitle" placeholder="Job title"
+                            <input type="text" class="form-control" id="editPersonnelJobTitle" name="jobTitle" placeholder="Job title"
                                 required>
                             <label for="editPersonnelJobTitle">Job Title</label>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="editPersonnelEmailAddress"
+                            <input type="email" class="form-control" id="editPersonnelEmailAddress" name="email"
                                 placeholder="Email address" required>
                             <label for="editPersonnelEmailAddress">Email Address</label>
                         </div>
 
                         <div class="form-floating">
-                            <select class="form-select" id="editPersonnelDepartment" placeholder="Department">
+                            <select class="form-select" name="departmentID" id="editPersonnelDepartment" placeholder="Department">
                             </select>
                             <label for="editPersonnelDepartment">Department</label>
                         </div>

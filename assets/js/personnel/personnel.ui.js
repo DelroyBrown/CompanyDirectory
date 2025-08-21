@@ -11,6 +11,7 @@ function populateDepartments($select) {
 }
 
 export function bindPersonnelUI({ loadPersonnel }) {
+    
     // ADD PERSONNEL
     $("#addPersonnelModal")
         .off("show.bs.modal")
@@ -46,7 +47,7 @@ export function bindPersonnelUI({ loadPersonnel }) {
             if (!id) { console.warn("editPersonnel: missing data-id"); return; }
 
             $("#editPersonnelForm")[0]?.reset();
-            $("#editPersonnelID").val(id); // hidden input in form
+            $("#editPersonnelEmployeeID").val(id);
 
             const personReq = API.getPersonnelById(id);
             const depsReq = API.getAllDepartments();
@@ -55,20 +56,25 @@ export function bindPersonnelUI({ loadPersonnel }) {
                 const personData = pres[0];
                 const depsData = dres[0];
 
-                const p = (personData?.data && (Array.isArray(personData.data) ? personData.data[0] : personData.data)) || {};
-                const items = Array.isArray(depsData?.data) ? depsData.data : [];
+                
+                const envelope = personData?.data || {};
+                const p = Array.isArray(envelope.personnel) ? envelope.personnel[0] : envelope.personnel || {};
 
+                const items = Array.isArray(depsData?.data) ? depsData.data : [];
                 const $dep = $("#editPersonnelDepartment").empty();
                 items.forEach(d => $dep.append(`<option value="${d.id}">${d.department}</option>`));
 
+            
                 $("#editPersonnelFirstName").val(p.firstName || "");
                 $("#editPersonnelLastName").val(p.lastName || "");
-                $("#editPersonnelEmail").val(p.email || "");
                 $("#editPersonnelJobTitle").val(p.jobTitle || "");
-                if (p.departmentID) $dep.val(String(p.departmentID));
+                $("#editPersonnelEmailAddress").val(p.email || "");
+
+                if (p.departmentID != null) $dep.val(String(p.departmentID));
             })
                 .fail((x, t, e) => console.error("load edit data failed:", t, e));
         });
+
 
     $("#editPersonnelForm")
         .off("submit")
