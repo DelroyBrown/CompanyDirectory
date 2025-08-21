@@ -4,6 +4,7 @@ import { loadPersonnel as modLoadPersonnel } from "./personnel.js";
 import { bindFilterModal } from "./filters.js";
 import { bindAddModals } from "./addModals.js";
 import { bindSearch } from "./search.js";
+import { bindRefresh } from "./refresh.js";
 
 
 
@@ -32,18 +33,12 @@ bindSearch({
     loadLocations: window.loadLocations
 });
 
+// bind the refresh
+bindRefresh({
+    loadPersonnel: window.loadPersonnel,
+    loadDepartments: window.loadDepartments,
+    loadLocations: window.loadLocations,
 
-$("#refreshBtn").on("click", function () {
-
-    const q = $("#searchInp").val().trim();
-
-    if ($("#personnelBtn").hasClass("active")) {
-        loadPersonnel();
-    } else if ($("#departmentsBtn").hasClass("active")) {
-        loadDepartments();
-    } else if ($("#locationsBtn").hasClass("active")) {
-        loadLocations();
-    }
 });
 
 $("#addBtn").off("click").on("click", function () {
@@ -55,7 +50,6 @@ $("#addBtn").off("click").on("click", function () {
         $("#addLocationModal").modal("show");
     }
 });
-
 
 
 $("#personnelBtn").click(function () {
@@ -490,16 +484,9 @@ $("#confirmDeleteLocationBtn").click(function () {
 
 // Departments logic
 window.loadDepartments = modLoadDepartments;
-// DELETE
-console.debug("[modules] departments loader installed");
-
 
 // Personnel logic
 window.loadPersonnel = modLoadPersonnel;
-// DELETE
-console.debug("[modules] personnel loader installed");
 
 // Locations logic
 window.loadLocations = modLoadLocations;
-// DELETE
-console.debug("[modules] locations loader installed");
