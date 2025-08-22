@@ -10,10 +10,10 @@ export function loadDepartments(q = "", filters = {}) {
         url = "libs/php/SearchAll.php?txt=" + encodeURIComponent(q);
     } else if (locationID) {
         // Filtered list by location
-        url = "libs/php/getAllDepartments.php?locationID=" + encodeURIComponent(locationID);
+        url = "libs/php/departments/getAllDepartments.php?locationID=" + encodeURIComponent(locationID);
     } else {
         // Unfiltered list
-        url = "libs/php/getAllDepartments.php";
+        url = "libs/php/departments/getAllDepartments.php";
     }
 
     $.ajax({

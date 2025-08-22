@@ -4,7 +4,7 @@ export function loadLocations(q = "") {
     const useSearch = q.length > 0;
     const url = useSearch
         ? "libs/php/SearchAll.php?txt=" + encodeURIComponent(q)
-        : "libs/php/getAllLocations.php";
+        : "libs/php/locations/getAllLocations.php";
 
     $.ajax({
         url,

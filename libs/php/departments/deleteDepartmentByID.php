@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 
 $executionStartTime = microtime(true);
 
-include("config.php");
+include("../config.php");
 
 header('Content-Type: application/json; charset=UTF-8');
 
@@ -17,34 +17,33 @@ if (mysqli_connect_errno()) {
 	$output['status']['description'] = "database unavailable";
 	$output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
 	$output['data'] = [];
-
+	mysqli_close($conn);
 	echo json_encode($output);
 	exit;
 }
 
-$name = $_POST['name'];
-$locationID = $_POST['locationID'];
-
-// added check for duplicate department names
-$checkQuery = $conn->prepare('SELECT id FROM department WHERE name = ?');
-$checkQuery->bind_param("s", $name);
+// Check for personnel dependencies
+$checkQuery = $conn->prepare("SELECT COUNT(*) AS count FROM personnel WHERE departmentID = ?");
+$checkQuery->bind_param("i", $_REQUEST['id']);
 $checkQuery->execute();
 $checkResult = $checkQuery->get_result();
+$row = $checkResult->fetch_assoc();
 
-if ($checkResult->num_rows > 0) {
+if ($row['count'] > 0) {
+	// Dependency found — cannot delete
 	$output['status']['code'] = "409"; // Conflict
-	$output['status']['name'] = "duplicate";
-	$output['status']['description'] = "Department name already exists";
+	$output['status']['name'] = "conflict";
+	$output['status']['description'] = "Cannot delete department with personnel";
+	$output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
 	$output['data'] = [];
-
+	mysqli_close($conn);
 	echo json_encode($output);
-	$conn->close();
 	exit;
 }
 
-// insert only if no duplicates
-$query = $conn->prepare('INSERT INTO department (name, locationID) VALUES (?, ?)');
-$query->bind_param("si", $name, $locationID);
+// Proceed with deletion
+$query = $conn->prepare('DELETE FROM department WHERE id = ?');
+$query->bind_param("i", $_REQUEST['id']);
 $query->execute();
 
 if ($query === false) {
@@ -59,7 +58,8 @@ if ($query === false) {
 	$output['data'] = [];
 }
 
-$conn->close();
+$output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
+mysqli_close($conn);
 echo json_encode($output);
 
 ?>

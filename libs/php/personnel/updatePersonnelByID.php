@@ -2,7 +2,7 @@
 
 header('Content-Type: application/json');
 
-include("config.php");
+include("../config.php");
 
 $conn = new mysqli(
     $cd_host,

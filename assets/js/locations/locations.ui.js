@@ -20,7 +20,7 @@ export function bindLocationsUI({ loadLocations }) {
             }
 
             $.ajax({
-                url: "libs/php/insertLocation.php",
+                url: "libs/php/locations/insertLocation.php",
                 type: "POST",
                 dataType: "json",
                 data: { name }
@@ -49,7 +49,7 @@ export function bindLocationsUI({ loadLocations }) {
             $("#editLocationError").addClass("d-none");
 
             $.ajax({
-                url: "libs/php/getLocationByID.php",
+                url: "libs/php/locations/getLocationByID.php",
                 type: "GET",
                 dataType: "json",
                 data: { id }
@@ -77,7 +77,7 @@ export function bindLocationsUI({ loadLocations }) {
             }
 
             $.ajax({
-                url: "libs/php/updateLocation.php",
+                url: "libs/php/locations/updateLocation.php",
                 type: "POST",
                 dataType: "json",
                 data: { id, name }
@@ -113,7 +113,7 @@ export function bindLocationsUI({ loadLocations }) {
             if (!id) return;
 
             $.ajax({
-                url: "libs/php/deleteLocationByID.php",
+                url: "libs/php/locations/deleteLocationByID.php",
                 type: "POST",
                 dataType: "json",
                 data: { id }

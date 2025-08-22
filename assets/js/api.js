@@ -1,7 +1,7 @@
 export const API = {
     getAllDepartments(params = {}) {
         return $.ajax({
-            url: "libs/php/getAllDepartments.php",
+            url: "libs/php/departments/getAllDepartments.php",
             type: "GET",
             data: params,
             dataType: "json",
@@ -9,7 +9,7 @@ export const API = {
     },
     getAllLocations() {
         return $.ajax({
-            url: "libs/php/getAllLocations.php",
+            url: "libs/php/locations/getAllLocations.php",
             type: "GET",
             dataType: "json",
         });
@@ -24,7 +24,7 @@ export const API = {
     },
     getPersonnelById(id) {
         return $.ajax({
-            url: "libs/php/getPersonnelByID.php",
+            url: "libs/php/personnel/getPersonnelByID.php",
             type: "GET",
             dataType: "json",
             data: { id }
@@ -32,7 +32,7 @@ export const API = {
     },
     getDepartmentById(id) {
         return $.ajax({
-            url: "libs/php/getDepartmentByID.php",
+            url: "libs/php/departments/getDepartmentByID.php",
             type: "GET",
             dataType: "json",
             data: { id }

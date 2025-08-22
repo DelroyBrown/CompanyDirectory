@@ -25,7 +25,7 @@ export function bindDepartmentsUI({ loadDepartments }) {
             e.preventDefault();
             const data = $(this).serialize();
             $.ajax({
-                url: "libs/php/insertDepartment.php",
+                url: "libs/php/departments/insertDepartment.php",
                 type: "POST",
                 dataType: "json",
                 data
@@ -80,7 +80,7 @@ export function bindDepartmentsUI({ loadDepartments }) {
             e.preventDefault();
             const data = $(this).serialize();
             $.ajax({
-                url: "libs/php/updateDepartment.php",
+                url: "libs/php/departments/updateDepartment.php",
                 type: "POST",
                 dataType: "json",
                 data
@@ -114,7 +114,7 @@ export function bindDepartmentsUI({ loadDepartments }) {
             const id = $("#deleteDepartmentID").val();
             if (!id) return;
             $.ajax({
-                url: "libs/php/deleteDepartmentByID.php",
+                url: "libs/php/departments/deleteDepartmentByID.php",
                 type: "POST",
                 dataType: "json",
                 data: { id }

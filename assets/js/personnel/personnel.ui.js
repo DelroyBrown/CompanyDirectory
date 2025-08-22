@@ -25,7 +25,7 @@ export function bindPersonnelUI({ loadPersonnel }) {
             e.preventDefault();
             const data = $(this).serialize();
             $.ajax({
-                url: "libs/php/insertPersonnel.php",
+                url: "libs/php/personnel/insertPersonnel.php",
                 type: "POST",
                 dataType: "json",
                 data
@@ -81,7 +81,7 @@ export function bindPersonnelUI({ loadPersonnel }) {
             e.preventDefault();
             const data = $(this).serialize();
             $.ajax({
-                url: "libs/php/updatePersonnelByID.php",
+                url: "libs/php/personnel/updatePersonnelByID.php",
                 type: "POST",
                 dataType: "json",
                 data
@@ -111,7 +111,7 @@ export function bindPersonnelUI({ loadPersonnel }) {
             const id = $("#deletePersonnelID").val();
             if (!id) return;
             $.ajax({
-                url: "libs/php/deletePersonnelByID.php",
+                url: "libs/php/personnel/deletePersonnelByID.php",
                 type: "POST",
                 dataType: "json",
                 data: { id }
