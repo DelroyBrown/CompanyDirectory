@@ -1,4 +1,4 @@
-import { API } from "./api.js";
+import { API } from "../api.js";
 
 export function loadLocations(q = "") {
     const useSearch = q.length > 0;

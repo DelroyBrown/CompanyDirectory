@@ -1,4 +1,4 @@
-import { filterState } from "./filters.js";
+import { filterState } from "../filters.js";
 
 export function bindLocationsUI({ loadLocations }) {
     // Add Location

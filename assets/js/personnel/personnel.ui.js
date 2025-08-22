@@ -1,4 +1,3 @@
-// assets/js/personnel.ui.js
 import { API } from "../api.js";
 import { filterState } from "../filters.js";
 
