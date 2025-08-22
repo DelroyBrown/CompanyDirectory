@@ -80,34 +80,7 @@
 
                     <tbody id="personnelTableBody">
 
-                        <!-- Below is an example row. Create a JS function that interogates the database and 
-                        dynamically creates the HTML for the table contents. -->
-
-                        <tr>
-                            <td class="align-middle text-nowrap">
-                                Ace, Tamarra
-                            </td>
-                            <td class="align-middle text-nowrap d-none d-md-table-cell">
-                                Support
-                            </td>
-                            <td class="align-middle text-nowrap d-none d-md-table-cell">
-                                Munich
-                            </td>
-                            <td class="align-middle text-nowrap d-none d-md-table-cell">
-                                tacem@vinaora.com
-                            </td>
-                            <td class="text-end text-nowrap">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#editPersonnelModal" data-id="23">
-                                    <i class="fa-solid fa-pencil fa-fw"></i>
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#deletePersonnelModal" data-id="${person.id}"
-                                    data-name="${person.lastName}, ${person.firstName}">
-                                    <i class="fa-solid fa-trash fa-fw"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        <!-- Generated in personnel.js -->
 
                     </tbody>
 
@@ -122,27 +95,7 @@
 
                     <tbody id="departmentTableBody">
 
-                        <!-- Below is an example row. Create a JS function that interogates the database and 
-                    dynamically creates the HTML for the table contents. -->
-
-                        <tr>
-                            <td class="align-middle text-nowrap">
-                                Human resources
-                            </td>
-                            <td class="align-middle text-nowrap d-none d-md-table-cell">
-                                London
-                            </td>
-                            <td class="align-middle text-end text-nowrap">
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#editDepartmentModal" data-id="{{id}}">
-                                    <i class="fa-solid fa-pencil fa-fw"></i>
-                                </button>
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#deleteDepartmentModal" data-id="{{id}}" data-name="{{department}}">
-                                    <i class="fa-solid fa-trash fa-fw"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        <!-- Generated in departments.js -->
 
                     </tbody>
 
@@ -156,22 +109,7 @@
                 <table class="table table-hover">
 
                     <tbody id="locationTableBody">
-                        <tr>
-                            <td class="align-middle text-nowrap">
-                                London
-                            </td>
-                            <td class="align-middle text-end text-nowrap">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#editLocationModal" data-id="${loc.id}">
-                                    <i class="fa-solid fa-pencil fa-fw"></i>
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#deleteLocationModal" data-id="${loc.id}" data-name="${loc.name}">
-                                    <i class="fa-solid fa-trash fa-fw"></i>
-                                </button>
-                            </td>
-                        </tr>
-
+                        <!-- Generated in locations.js -->
                     </tbody>
 
                 </table>
@@ -189,6 +127,9 @@
     </section>
 
 
+
+
+    <!-- MODALS -->
 
     <!-- Delete Department Modal -->
     <div class="modal fade" id="deleteDepartmentModal" tabindex="-1" aria-labelledby="deleteDepartmentModalLabel"
@@ -637,6 +578,48 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Department People Modal -->
+    <div class="modal fade" id="departmentPeopleModal" tabindex="-1" aria-labelledby="departmentPeopleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="departmentPeopleModalLabel">Department Members</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="departmentPeopleLoading" class="text-center py-4 d-none">Loading…</div>
+                    <div id="departmentPeopleEmpty" class="alert alert-info d-none">No people found in this department.
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-nowrap">Name</th>
+                                    <th class="text-nowrap">Job Title</th>
+                                    <th class="text-nowrap d-none d-md-table-cell">Email</th>
+                                    <th class="text-nowrap d-none d-md-table-cell">Location</th>
+                                </tr>
+                            </thead>
+                            <tbody id="departmentPeopleTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <span id="departmentPeopleCount" class="me-auto small text-muted"></span>
+                    <button type="button" class="btn btn-outline-primary btn-sm myBtn"
+                        data-bs-dismiss="modal">CLOSE</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 
 
 
