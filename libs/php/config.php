@@ -2,14 +2,14 @@
 
 // connection details for MySQL database
 
-$cd_host = "127.0.0.1";
+$cd_host = "sql201.infinityfree.com";
 $cd_port = 3306;
 $cd_socket = "";
 
 // database name, username and password
 
-$cd_dbname = "companydirectory";
-$cd_user = "root";
-$cd_password = "";
+$cd_dbname = "if0_39428382_companydirectory";
+$cd_user = "if0_39428382";
+$cd_password = "Y6XlqbRo6ce";
 
 ?>
